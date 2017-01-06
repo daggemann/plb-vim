@@ -1,11 +1,3 @@
-function! plb#newFunction()
-    r~\.vim\bundle\plb\ftplugin\plb\newfunction.txt
-endfunction
-
-function! plb#newFile()
-    r~\.vim\bundle\plb\ftplugin\plb\newfile.txt
-endfunction
-
 if !exists("g:plb_con")
     let g:plb_con = "plbcon"
 endif

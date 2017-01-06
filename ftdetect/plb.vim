@@ -1,1 +1,2 @@
-au BufNewFile,BufRead *.txt,*.pls,*.inc,*.def,*.io,*.fio,*.ui,*.kio,*.sys,*.api set filetype=plb
+" TODO: add possibility of adding user defined prefixes
+au BufNewFile,BufRead *.pls,*.inc set filetype=plb

@@ -3,7 +3,7 @@ setlocal foldexpr=GetPlbFold(v:lnum)
 
 " Various regular expressions
 let s:regex_is_record = '\v\c^\S+\s+record\s*(definition|def)?(\s*\/\/.*)?$'
-let s:regex_is_recordend = '\v^\s+recordend(\s*\/\/.*)?$'
+let s:regex_is_recordend = '\v\c^\s+recordend(\s*\/\/.*)?$'
 
 " List that contains active fold levels
 let s:fold_level = []

@@ -5,50 +5,33 @@ setlocal foldexpr=GetPlbFold(v:lnum)
 let s:regex_is_record = '\v\c^\S+\s+record\s*(definition|def)?(\s*\/\/.*)?$'
 let s:regex_is_recordend = '\v^\s+recordend(\s*\/\/.*)?$'
 
-" Initialize empty list that indicates if line is either a record, a record
-" member or recordend
-let s:is_record = []
+" List that contains active fold levels
+let s:fold_level = []
+
+" Boolean fold variables
+let s:is_record = 0
 
 " foldexpr function
 function! GetPlbFold(lnum)
     " Blank lines
     if getline(a:lnum) =~? '\v^\s*$'
-        return '-1'
+        return s:GetCurrentFoldLevel()
     endif
 
     " Record
     if getline(a:lnum) =~? s:regex_is_record
-        " Add first or new fold level to list
-        if !len(s:is_record)
-            let s:is_record += [1]
-        else
-            let s:is_record += [s:is_record[-1] + 1]
-        endif
-        " Return the last item in list
-        return '>' . s:is_record[-1]
-    endif
-
-    if len(s:is_record)
-        " Is the current line the end of a record?
+        " We are entering a record
+        return '>' . s:GetRecordFold()
+    elseif s:is_record
         if getline(a:lnum) =~? s:regex_is_recordend
-            " We need to remove the last item
-            return '<' . remove(s:is_record, -1)
+            " The current line is the end of record.
+            " We need to remove the last item from fold level
+            return '<' . s:GetRecordendFold()
+        else
+            " The current line should have the fold level of the last item in
+            " the list.
+            return s:GetCurrentFoldLevel()
         endif
-        " The current line should have the fold level of the last item in the
-        " list.
-        return s:is_record[-1]
-    endif
-
-    " All other indents
-    let this_indent = IndentLevel(a:lnum)
-    let next_indent = IndentLevel(NextNonBlankLine(a:lnum))
-
-    if next_indent == this_indent
-        return this_indent
-    elseif next_indent < this_indent
-        return this_indent
-    elseif next_indent > this_indent
-        return '>' . next_indent
     endif
 endfunction
 
@@ -74,7 +57,39 @@ function! IndentLevel(lnum)
     return indent(a:lnum) / &shiftwidth
 endfunction
 
-" Function to get fold level of a line containing RECORD
-function! RecordFold()
-    return 1
+function! s:GetCurrentFoldLevel()
+    if !len(s:fold_level)
+        " No fold is active
+        return 0
+    else
+        " Get the fold level from list
+        return s:fold_level[-1]
+    endif
+endfunction
+
+function! s:GetRecordFold()
+    " Indicate that we are starting a record fold
+    if !s:is_record
+        let s:is_record = 1
+    endif
+
+    " Add first or new fold level to list
+    if !len(s:fold_level)
+        let s:fold_level += [1]
+    else
+        let s:fold_level += [s:fold_level[-1] + 1]
+    endif
+
+    " Return the last item in list
+    return s:fold_level[-1]
+endfunction
+
+function! s:GetRecordendFold()
+    if len(s:fold_level) == 1
+        " This recordend is the outermost record. Hence,
+        " we are now leaving the record
+        let s:is_record = 0
+    endif
+    " remove and return the last item in fold level
+    return remove(s:fold_level, -1)
 endfunction

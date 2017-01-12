@@ -25,11 +25,9 @@
 "     let g:plb_ds_cid = "-ds=24 -cid=24"
 " endif
 " 
-" function! plb#Build()
-"     silent !clear
-"     execute "w"
-"     execute "!start cmd /c " . g:plb_win . " " . g:plb_cmp . " " . bufname("%") . " " . g:plb_cmp_arg . " & pause"
-" endfunction
+function! plb#Build()
+    execute ":silent make! | copen"
+endfunction
 " 
 " function! plb#Run()
 "     silent !clear
